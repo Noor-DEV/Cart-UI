@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import Cart from "./Components/Cart/Cart";
 import Header from "./Components/Layout/Header";
@@ -9,12 +9,19 @@ function App() {
   function cartToggle() {
     setCartIsShown((prevState) => !prevState);
   }
+  function closeModal() {
+    setCartIsShown(false);
+  }
   return (
     <CartProvider>
       <Header onCartToggle={cartToggle} />
       <main>
         {cartIsShown && (
-          <Cart cartIsShown={cartIsShown} onCartToggle={cartToggle} />
+          <Cart
+            cartIsShown={cartIsShown}
+            onCartToggle={cartToggle}
+            onClose={closeModal}
+          />
         )}
         <Meals />
       </main>

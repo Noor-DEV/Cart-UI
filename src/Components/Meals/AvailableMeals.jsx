@@ -1,39 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Meal from "./Meal";
 import classes from "./MealSummary.module.css";
-const DEFAULT_ITEMS = [
-  {
-    id: "m1",
-    title: "Sushi",
-    description: "Finest fish and veggies",
-    price: 22.49854,
-  },
-  {
-    id: "m2",
-    title: "Schnitzel",
-    description: "A german specialty!",
-    price: 16.5,
-  },
-  {
-    id: "m3",
-    title: "Barbecue Burger",
-    description: "American, raw, meaty",
-    price: 12.99,
-  },
-  {
-    id: "m4",
-    title: "Green Bowl",
-    description: "Healthy...and green...",
-    price: 18.99,
-  },
-];
-const AvailableMeals = () => {
-  const [availabelMeals] = useState(DEFAULT_ITEMS);
+
+const AvailableMeals = (props) => {
+  const [meals, setMeals] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(null);
+
+  useEffect(() => {
+    fetch(
+      "https://react-backend-d4c31-default-rtdb.firebaseio.com/restaurantFood.json"
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        let foodArray = [];
+        for (const key in data) {
+          foodArray.push({ id: key, ...data[key] });
+        }
+        setMeals(foodArray);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        setIsError(err.message);
+        setIsLoading(false);
+        console.log({ err, msg: "------Error fetching the meals------------" });
+      });
+  }, []);
   return (
     <section id={classes["meals-container"]}>
-      {availabelMeals.map((meal) => {
-        return <Meal key={meal.id} item={meal} />;
-      })}
+      {!isLoading &&
+        !isError &&
+        meals.map((meal) => {
+          return <Meal key={meal.id} item={meal} />;
+        })}
+
+      {isLoading && <h1>Loading .....</h1>}
+      {isError && !isLoading && (
+        <>
+          <h1>Error Ocurred...</h1>
+          <h1>{isError}</h1>
+        </>
+      )}
     </section>
   );
 };
